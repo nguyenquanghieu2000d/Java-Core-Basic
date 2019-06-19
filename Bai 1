@@ -1,0 +1,30 @@
+/*Bài 1: Nhập vào kích thước chiều rộng chiều cao và in ra hình chữ nhật các dấu *.
+Ví dụ với chiều cao là 5, chiều rộng là 5:*/
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication1;
+
+/**
+ *
+ * @author Nguyen Quang Hieu
+ */
+import java.util.Scanner;
+public class NewClass {
+    public static void main(String[] args){
+        Scanner scanner = new Scanner(System.in);
+        int n;
+        int m;
+        System.out.printf("Nhap vao 2 so m va n: ");
+        n = scanner.nextInt();
+        m = scanner.nextInt();
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                System.out.printf("*");
+            }
+            System.out.printf("\n");
+        }
+    }
+}
