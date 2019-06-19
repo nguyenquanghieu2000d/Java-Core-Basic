@@ -1,0 +1,22 @@
+Bài 4: Viết chương trình in ra Bảng cửu chương.
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package javaapplication1;
+
+/**
+ *
+ * @author Nguyen Quang Hieu
+ */
+public class NewClass3 {
+    public static void main(String[] args){
+        for(int i=1;i<=9;i++){
+            for(int j=1;j<=10;j++){
+                System.out.printf("%2d x %2d = %2d\n", i,j,i*j );
+            }
+            System.out.printf("---------------------------------\n");
+        }
+    }
+}
