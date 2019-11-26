@@ -1,0 +1,165 @@
+use quanlybanhangv1
+go
+-- CAU C ----
+create proc capnhatthanhtien_cthd
+as 
+begin
+	update chitiethd
+	set thanhtien = (soluong * giaban)
+end;
+go
+exec capnhatthanhtien_cthd
+go
+create proc capnhatthanhtien_ctpn
+as
+begin
+	update chitietpn
+	set thanhtien = (soluong * gianhap)
+end;
+---- CAU D-------
+go
+exec capnhatthanhtien_ctpn
+go
+create proc capnhatthanhtien_pn
+as
+begin
+	update phieunhap
+	set tiennhap = (select sum(thanhtien)
+	from chitietpn
+	where chitietpn.mapn = phieunhap.mapn)
+end;
+go
+
+exec capnhatthanhtien_pn
+go
+create proc capnhatthanhtien_hd
+as
+begin
+	update hoadon
+	set tienban = (select sum(thanhtien)
+	from chitiethd
+	where chitiethd.mahd = hoadon.mahd)
+end;
+go
+exec capnhatthanhtien_hd
+go
+---- CAU E ------
+create trigger capnhatthanhtien_cthd_1 on chitiethd
+for insert,update
+as
+begin
+	exec capnhatthanhtien_cthd
+end;
+go
+create trigger capnhatthanhtien_ctpn_1 on chitietpn
+for insert,update
+as
+begin
+	exec capnhatthanhtien_ctpn
+end;
+go
+create trigger capnhatthanhtien_hd_1 on chitiethd
+for insert,update
+as
+begin
+	exec capnhatthanhtien_hd
+end;
+go
+create trigger capnhatthanhtien_pn_1 on chitietpn
+for insert,update
+as
+begin
+	exec capnhatthanhtien_pn
+end;
+go
+--- CAU H ------
+create trigger capnhattinhtrang on chitiethd 
+for insert
+as
+begin
+	if (select (hang.soluong - inserted.soluong)
+	from hang
+	join inserted on inserted.mahg = hang.mahg) < 0 
+	begin
+		print('Khong du hang ban')
+		rollback tran
+	end;
+	else
+	begin
+		update hang
+		set soluong = hang.soluong - inserted.soluong
+		from hang
+		join inserted on inserted.mahg = hang.mahg
+	end;
+end;
+go
+------ CAU G ------
+create trigger capnhattinhtrang_1 on chitietpn
+for insert
+as
+begin
+	update hang
+	set soluong = hang.soluong + inserted.soluong
+	from hang
+	join inserted on inserted.mahg = hang.mahg
+end;
+go
+--- CAU F -------
+create trigger capnhattinhtrang_2 on chitiethd
+for insert 
+as
+begin
+	update hang
+	set tinhtrang = 'Da ban'
+	from hang
+	join inserted on hang.mahg = inserted.mahg
+
+	if (select hang.soluong 
+	from hang 
+	join inserted on hang.mahg = inserted.mahg) = 0 
+	begin 
+		update hang
+		set tinhtrang = 'Het hang'
+		from hang
+		join inserted on hang.mahg = inserted.mahg
+	end;
+	----------------- XUAT RA KHONG DU HANG BAN CAU H ------------------------
+end; 
+go
+--- CAU J ----
+create trigger setNgay on hoadon
+for insert
+as
+begin
+	update hoadon
+	set ngayban = getdate()
+	from hoadon
+	join inserted on hoadon.mahd = inserted.mahd
+end;
+--- CAU K ---
+go
+/*create trigger setNgay_dongia on dongia
+for insert
+as
+begin
+	update dongia
+	set ngaycn = getdate()
+	from dongia
+	join inserted on dongia.mahg = inserted.mahg
+end*/
+
+create trigger capnhatdongia on chitiethd
+for insert
+as
+begin
+	update chitiethd
+	set giaban = (
+	select top 1 gia
+	from dongia,inserted
+	where dongia.mahg = inserted.mahg
+	order by dongia.ngaycn desc)
+	from chitiethd
+	join inserted on chitiethd.mahg = inserted.mahg
+	and chitiethd.mahd = inserted.mahd
+end;
+go
